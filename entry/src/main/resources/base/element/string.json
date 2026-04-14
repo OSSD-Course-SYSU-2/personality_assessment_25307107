@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "恋爱性格测试模块"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "恋爱性格测试 - 发现你的恋爱密码"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "恋爱性格测试"
+    }
+  ]
+}
