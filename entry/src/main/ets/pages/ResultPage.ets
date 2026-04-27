@@ -75,6 +75,73 @@ struct ResultPage {
             .backgroundColor('#FFF0F5')
             .borderRadius(15)
 
+            // 分享卡片
+            Column() {
+              Row() {
+                Text('✨')
+                  .fontSize(20)
+                  .margin({ right: 8 })
+                Text('结果分享卡片')
+                  .fontSize(18)
+                  .fontWeight(FontWeight.Bold)
+                  .fontColor('#FFFFFF')
+              }
+              .margin({ bottom: 14 })
+
+              Text(this.resultType)
+                .fontSize(44)
+                .fontWeight(FontWeight.Bold)
+                .fontColor('#FFFFFF')
+                .margin({ bottom: 8 })
+
+              Text(this.result.description)
+                .fontSize(15)
+                .fontColor('#FFF5F7')
+                .textAlign(TextAlign.Center)
+                .lineHeight(22)
+                .width('92%')
+                .margin({ bottom: 14 })
+
+              Row() {
+                Column() {
+                  Text('性格亮点')
+                    .fontSize(12)
+                    .fontColor('#FFDCE6')
+                    .margin({ bottom: 6 })
+                  Text(this.result.strengths[0])
+                    .fontSize(14)
+                    .fontWeight(FontWeight.Medium)
+                    .fontColor('#FFFFFF')
+                }
+                .width('45%')
+
+                Column() {
+                  Text('最佳匹配')
+                    .fontSize(12)
+                    .fontColor('#FFDCE6')
+                    .margin({ bottom: 6 })
+                  Text(loveAdviceData[this.resultType].bestMatch[0])
+                    .fontSize(14)
+                    .fontWeight(FontWeight.Medium)
+                    .fontColor('#FFFFFF')
+                }
+                .width('45%')
+              }
+              .width('100%')
+              .justifyContent(FlexAlign.SpaceBetween)
+              .margin({ bottom: 14 })
+
+              Text('截图这张卡片，发给朋友一起看你的恋爱风格。')
+                .fontSize(12)
+                .fontColor('#FFE7EE')
+            }
+            .width('100%')
+            .padding(20)
+            .backgroundColor('#E91E63')
+            .borderRadius(18)
+            .margin({ bottom: 20 })
+            .shadow({ radius: 10, color: '#F7B4C7', offsetX: 0, offsetY: 5 })
+
             // 恋爱性格特点
             Column() {
               Row() {
@@ -251,6 +318,22 @@ struct ResultPage {
                 }
               });
             })
+
+            Button('去玩趣味玩法')
+              .width('90%')
+              .height(52)
+              .backgroundColor('#FFF0F5')
+              .fontColor('#E91E63')
+              .border({ width: 1, color: '#F6B3C6', radius: 26 })
+              .margin({ bottom: 20 })
+              .onClick(() => {
+                router.pushUrl({
+                  url: 'pages/FunPage',
+                  params: {
+                    resultType: this.resultType
+                  }
+                });
+              })
 
             // 操作按钮
             Row() {

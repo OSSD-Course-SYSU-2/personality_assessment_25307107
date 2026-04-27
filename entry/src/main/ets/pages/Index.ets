@@ -47,6 +47,57 @@ struct Index {
           .width('100%')
           .margin({ top: 25, bottom: 20 })
 
+          // 趣味玩法入口
+          Column() {
+            Text('今天先玩点轻松的')
+              .fontSize(18)
+              .fontWeight(FontWeight.Bold)
+              .fontColor('#333333')
+              .margin({ bottom: 8 })
+
+            Text('每日小任务、随机彩蛋题和轻提示，适合先热身再正式测试。')
+              .fontSize(14)
+              .fontColor('#666666')
+              .textAlign(TextAlign.Center)
+              .lineHeight(22)
+              .width('92%')
+
+            Row() {
+              Button('去玩趣味玩法')
+                .width('47%')
+                .height(48)
+                .backgroundColor('#FFFFFF')
+                .fontColor('#E91E63')
+                .border({ width: 2, color: '#E91E63', radius: 24 })
+                .onClick(() => {
+                  router.pushUrl({
+                    url: 'pages/FunPage'
+                  });
+                })
+
+              Button('开始正式测试')
+                .width('47%')
+                .height(48)
+                .backgroundColor('#E91E63')
+                .fontColor('#FFFFFF')
+                .borderRadius(24)
+                .onClick(() => {
+                  router.pushUrl({
+                    url: 'pages/TestPage'
+                  });
+                })
+            }
+            .width('90%')
+            .justifyContent(FlexAlign.SpaceBetween)
+            .margin({ top: 16 })
+          }
+          .width('90%')
+          .padding(18)
+          .backgroundColor('#FFFFFF')
+          .borderRadius(16)
+          .margin({ bottom: 20 })
+          .shadow({ radius: 8, color: '#FFE0E6', offsetX: 0, offsetY: 4 })
+
           // 功能亮点卡片
           Column() {
             // 亮点1

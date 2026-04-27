@@ -3,6 +3,7 @@
     "pages/Index",
     "pages/TestPage",
     "pages/ResultPage",
-    "pages/LoveAdvicePage"
+    "pages/LoveAdvicePage",
+    "pages/FunPage"
   ]
 }
