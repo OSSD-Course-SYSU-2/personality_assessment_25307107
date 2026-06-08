@@ -14,13 +14,12 @@ struct TestPage {
     this.answers = new Array(mbtiQuestions.length).fill(0);
   }
 
-  // 计算MBTI结果
   calculateMBTIResult(): string {
     const scores: DimensionScores = {
       E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0
     };
 
-    mbtiQuestions.forEach((question, index) => {
+    mbtiQuestions.forEach((question: MBTIQuestion, index: number) => {
       const answer = this.answers[index];
       if (answer === 1) {
         if (question.dimension === 'EI') {
@@ -54,7 +53,6 @@ struct TestPage {
     return result;
   }
 
-  // 选择答案
   selectAnswer(option: number) {
     this.answers[this.currentQuestionIndex] = option;
 
@@ -75,7 +73,6 @@ struct TestPage {
     }
   }
 
-  // 上一题
   previousQuestion() {
     if (this.currentQuestionIndex > 0) {
       this.currentQuestionIndex--;
@@ -85,7 +82,6 @@ struct TestPage {
 
   build() {
     Column() {
-      // 顶部标题栏
       Column() {
         Text('💕 恋爱性格测试')
           .fontSize(22)
@@ -100,7 +96,6 @@ struct TestPage {
       })
       .justifyContent(FlexAlign.Center)
 
-      // 进度条
       Column() {
         Row() {
           Text(`已完成 ${Math.round(this.progress)}%`)
@@ -119,17 +114,14 @@ struct TestPage {
       .width('100%')
       .alignItems(HorizontalAlign.Center)
 
-      // 题目区域
       if (!this.isTestComplete) {
         Column() {
-          // 题号
           Text(`第 ${this.currentQuestionIndex + 1} 题 / 共 ${mbtiQuestions.length} 题`)
             .fontSize(16)
             .fontColor('#E91E63')
             .fontWeight(FontWeight.Medium)
             .margin({ top: 30, bottom: 20 })
 
-          // 题目
           Text(mbtiQuestions[this.currentQuestionIndex].question)
             .fontSize(20)
             .fontWeight(FontWeight.Medium)
@@ -139,7 +131,6 @@ struct TestPage {
             .lineHeight(28)
             .margin({ bottom: 35 })
 
-          // 选项A
           Button() {
             Column() {
               Row() {
@@ -171,7 +162,6 @@ struct TestPage {
           .margin({ bottom: 15 })
           .onClick(() => this.selectAnswer(1))
 
-          // 选项B
           Button() {
             Column() {
               Row() {
@@ -202,7 +192,6 @@ struct TestPage {
           .border({ width: 1, color: '#FFE0E6' })
           .onClick(() => this.selectAnswer(2))
 
-          // 上一题按钮
           if (this.currentQuestionIndex > 0) {
             Button('← 上一题')
               .width('85%')

@@ -9,7 +9,6 @@ struct LoveAdvicePage {
   @State loveAdvice: LoveAdvice | null = null;
 
   aboutToAppear() {
-    // 获取传递过来的MBTI类型
     const params = router.getParams() as Record<string, Object>;
     if (params && params['resultType']) {
       this.resultType = params['resultType'] as string;
@@ -17,14 +16,12 @@ struct LoveAdvicePage {
     }
   }
 
-  // 返回结果页
   goBack() {
     router.back();
   }
 
   build() {
     Column() {
-      // 顶部标题栏
       Row() {
         Button() {
           Text('←')
@@ -55,7 +52,6 @@ struct LoveAdvicePage {
       if (this.loveAdvice) {
         Scroll() {
           Column() {
-            // MBTI类型和恋爱风格
             Column() {
               Text(`${this.resultType} 的恋爱风格`)
                 .fontSize(22)
@@ -75,7 +71,6 @@ struct LoveAdvicePage {
             .borderRadius(15)
             .margin({ top: 20, bottom: 20 })
 
-            // 理想伴侣特质
             Column() {
               Row() {
                 Text('💕')
@@ -108,7 +103,6 @@ struct LoveAdvicePage {
             .margin({ bottom: 15 })
             .shadow({ radius: 5, color: '#FFE0E6', offsetX: 0, offsetY: 2 })
 
-            // 最佳匹配
             Column() {
               Row() {
                 Text('💑')
@@ -146,7 +140,6 @@ struct LoveAdvicePage {
             .margin({ bottom: 15 })
             .shadow({ radius: 5, color: '#FFE0E6', offsetX: 0, offsetY: 2 })
 
-            // 需要注意的类型
             Column() {
               Row() {
                 Text('⚠️')
@@ -184,7 +177,6 @@ struct LoveAdvicePage {
             .margin({ bottom: 15 })
             .shadow({ radius: 5, color: '#FFE0E6', offsetX: 0, offsetY: 2 })
 
-            // 约会建议
             Column() {
               Row() {
                 Text('🌹')
@@ -221,7 +213,6 @@ struct LoveAdvicePage {
             .margin({ bottom: 15 })
             .shadow({ radius: 5, color: '#FFE0E6', offsetX: 0, offsetY: 2 })
 
-            // 沟通方式
             Column() {
               Row() {
                 Text('💬')
@@ -246,7 +237,6 @@ struct LoveAdvicePage {
             .margin({ bottom: 15 })
             .shadow({ radius: 5, color: '#FFE0E6', offsetX: 0, offsetY: 2 })
 
-            // 爱的语言
             Column() {
               Row() {
                 Text('❤️')
@@ -279,7 +269,6 @@ struct LoveAdvicePage {
             .margin({ bottom: 15 })
             .shadow({ radius: 5, color: '#FFE0E6', offsetX: 0, offsetY: 2 })
 
-            // 恋爱中的挑战
             Column() {
               Row() {
                 Text('💪')

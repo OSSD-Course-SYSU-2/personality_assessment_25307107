@@ -31,7 +31,6 @@ struct ResultPage {
 
   build() {
     Column() {
-      // 顶部标题栏
       Column() {
         Text('💕 你的恋爱性格')
           .fontSize(22)
@@ -49,7 +48,6 @@ struct ResultPage {
       if (this.result) {
         Scroll() {
           Column() {
-            // MBTI类型展示 - 恋爱主题
             Column() {
               Text('你的恋爱性格是')
                 .fontSize(14)
@@ -75,7 +73,6 @@ struct ResultPage {
             .backgroundColor('#FFF0F5')
             .borderRadius(15)
 
-            // 分享卡片
             Column() {
               Row() {
                 Text('✨')
@@ -142,7 +139,6 @@ struct ResultPage {
             .margin({ bottom: 20 })
             .shadow({ radius: 10, color: '#F7B4C7', offsetX: 0, offsetY: 5 })
 
-            // 恋爱性格特点
             Column() {
               Row() {
                 Text('💘')
@@ -177,7 +173,6 @@ struct ResultPage {
             .margin({ bottom: 15 })
             .shadow({ radius: 5, color: '#FFE0E6', offsetX: 0, offsetY: 2 })
 
-            // 恋爱中的优势
             Column() {
               Row() {
                 Text('💚')
@@ -210,7 +205,6 @@ struct ResultPage {
             .margin({ bottom: 15 })
             .shadow({ radius: 5, color: '#FFE0E6', offsetX: 0, offsetY: 2 })
 
-            // 恋爱中的劣势
             Column() {
               Row() {
                 Text('💛')
@@ -243,7 +237,6 @@ struct ResultPage {
             .margin({ bottom: 15 })
             .shadow({ radius: 5, color: '#FFE0E6', offsetX: 0, offsetY: 2 })
 
-            // 最佳匹配预览（核心亮点）
             Column() {
               Row() {
                 Text('💑')
@@ -292,7 +285,6 @@ struct ResultPage {
             .margin({ bottom: 20 })
             .shadow({ radius: 5, color: '#FFE0E6', offsetX: 0, offsetY: 2 })
 
-            // 查看完整恋爱建议按钮（核心功能入口）
             Button() {
               Row() {
                 Text('💕')
@@ -335,7 +327,6 @@ struct ResultPage {
                 });
               })
 
-            // 操作按钮
             Row() {
               Button('重新测试')
                 .width('40%')

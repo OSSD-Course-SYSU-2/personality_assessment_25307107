@@ -5,7 +5,6 @@ import router from '@ohos.router';
 struct Index {
   build() {
     Column() {
-      // 顶部渐变标题栏
       Column() {
         Text('💕')
           .fontSize(40)
@@ -26,10 +25,8 @@ struct Index {
         colors: [['#E91E63', 0], ['#C2185B', 1]]
       })
 
-      // 主内容区域
       Scroll() {
         Column() {
-          // 核心介绍
           Column() {
             Text('探索你的恋爱性格')
               .fontSize(22)
@@ -47,7 +44,6 @@ struct Index {
           .width('100%')
           .margin({ top: 25, bottom: 20 })
 
-          // 趣味玩法入口
           Column() {
             Text('今天先玩点轻松的')
               .fontSize(18)
@@ -98,9 +94,7 @@ struct Index {
           .margin({ bottom: 20 })
           .shadow({ radius: 8, color: '#FFE0E6', offsetX: 0, offsetY: 4 })
 
-          // 功能亮点卡片
           Column() {
-            // 亮点1
             Row() {
               Column() {
                 Text('💘')
@@ -129,7 +123,6 @@ struct Index {
             .width('100%')
             .margin({ bottom: 18 })
 
-            // 亮点2
             Row() {
               Column() {
                 Text('💑')
@@ -158,7 +151,6 @@ struct Index {
             .width('100%')
             .margin({ bottom: 18 })
 
-            // 亮点3
             Row() {
               Column() {
                 Text('🌹')
@@ -187,7 +179,6 @@ struct Index {
             .width('100%')
             .margin({ bottom: 18 })
 
-            // 亮点4
             Row() {
               Column() {
                 Text('💬')
@@ -221,7 +212,6 @@ struct Index {
           .borderRadius(15)
           .shadow({ radius: 8, color: '#FFE0E6', offsetX: 0, offsetY: 4 })
 
-          // 开始测试按钮
           Button('开始测试，发现恋爱密码')
             .width('85%')
             .height(60)
@@ -238,7 +228,6 @@ struct Index {
               });
             })
 
-          // 底部说明
           Text('仅需3分钟，解锁你的恋爱性格')
             .fontSize(13)
             .fontColor('#CCCCCC')
