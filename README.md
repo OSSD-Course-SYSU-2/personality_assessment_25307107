@@ -23,7 +23,31 @@
 | LoveAdvicePage | pages/LoveAdvicePage | 压力测试页，10 道题评估压力水平 + 建议 |
 | FunPage | pages/FunPage | 治愈角，每日一言 + 每日小任务 + 心情签 |
 
-## 🚀 使用流程
+## 📸 页面展示
+
+### 1. 首页
+
+![首页](docs/images/01-home.png)
+
+首页展示温暖头部、时段问候语和三个入口卡片——写下心事、压力小测试、今日治愈。
+
+### 2. 书写页
+
+![书写页](docs/images/02-write.png)
+
+选择心情类别后进入书写区，信纸风格的输入框，写完即可提交等待 AI 回信。
+
+### 3. 回信页
+
+![回信页](docs/images/03-response.png)
+
+AI 生成的暖心回信以信笺样式展示，包含收件信息、正文和落款。可展开回顾自己写的内容。
+
+### 4. 今日治愈
+
+![今日治愈](docs/images/04-healing.png)
+
+每日一言、今日小任务和心情签——治愈角的三个核心模块。
 
 1. 打开应用，进入首页
 2. 点击「写下心事」→ 选择心情类别 → 书写心事 → 提交 → AI 生成回信
@@ -58,15 +82,15 @@ entry/src/main/ets/
 
 ## 🤖 AI 回信配置
 
-默认使用 DeepSeek API（便宜且效果好）。配置方法：
+默认使用**硅基流动**（SiliconFlow）调用 DeepSeek-V3，国内直连、注册送 2000 万 token 免费额度。
+
+配置方法：
 
 1. 打开 `entry/src/main/ets/data/AiService.ets`
 2. 将 `AI_API_KEY` 填入你的 API Key
-3. 如需更换 API 提供商，修改 `AI_API_URL` 和 `AI_MODEL`
+3. 如需更换 API 提供商，修改 `AI_API_URL` 和 `AI_MODEL`（兼容 OpenAI 格式）
 
-API 兼容 OpenAI 格式，支持 DeepSeek、OpenAI、及其他兼容接口。
-
-如果未配置 API Key 或调用失败，会自动回退到本地预设回信。
+未配置 API Key 或调用失败时，自动回退到本地 16 条预设回信。
 
 ## 🛠️ 开发环境
 
