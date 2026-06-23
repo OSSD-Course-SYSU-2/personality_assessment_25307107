@@ -2,15 +2,15 @@
   "string": [
     {
       "name": "module_desc",
-      "value": "恋爱性格测试模块"
+      "value": "心事述说馆 - 把心事说出来，把温暖带回家"
     },
     {
       "name": "EntryAbility_desc",
-      "value": "恋爱性格测试 - 发现你的恋爱密码"
+      "value": "心事述说馆 - 你的专属情绪树洞"
     },
     {
       "name": "EntryAbility_label",
-      "value": "恋爱性格测试"
+      "value": "心事述说馆"
     }
   ]
 }

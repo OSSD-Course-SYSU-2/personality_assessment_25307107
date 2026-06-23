@@ -1,383 +1,142 @@
-import { MBTIResult } from '../model/MBTIModel';
-import { mbtiResults } from '../data/MBTIResults';
-import { loveAdviceData } from '../data/LoveAdviceData';
+/**
+ * 心事述说馆 - 回信页
+ * 背景：图片 — 替换 bg_letter.png
+ */
 import router from '@ohos.router';
+import { freeFlowState } from '../common/FreeFlowState';
 
 @Entry
 @Component
-struct ResultPage {
-  @State resultType: string = '';
-  @State result: MBTIResult | null = null;
+struct ResponsePage {
+  @State responseTitle: string = '';
+  @State responseBody: string = '';
+  @State responseFollowUp: string = '';
+  @State categoryEmoji: string = '';
+  @State categoryName: string = '';
+  @State userContent: string = '';
+  @State showRecap: boolean = false;
 
   aboutToAppear() {
     const params = router.getParams() as Record<string, Object>;
-    if (params && params['resultType']) {
-      this.resultType = params['resultType'] as string;
-      this.result = mbtiResults[this.resultType];
-    }
-  }
-
-  restartTest() {
-    router.replaceUrl({
-      url: 'pages/TestPage'
+    const rp = freeFlowState.hasRestoreData() ? freeFlowState.getRestoredParams() : null;
+    this.responseTitle = (params?.['responseTitle'] || rp?.['aiTitle'] || '谢谢你愿意说出来') as string;
+    this.responseBody = (params?.['responseBody'] || rp?.['aiBody'] || '你把心事写下来的那一刻，已经是一种勇敢。') as string;
+    this.responseFollowUp = (params?.['responseFollowUp'] || rp?.['aiFollowUp'] || '愿你被世界温柔以待。') as string;
+    this.categoryEmoji = (params?.['categoryEmoji'] || '') as string;
+    this.categoryName = (params?.['categoryName'] || '') as string;
+    this.userContent = (params?.['userContent'] || '') as string;
+    freeFlowState.updateState('pages/ResultPage', {
+      'categoryId': params?.['categoryId'] || -1, 'responseRevealed': true,
+      'aiTitle': this.responseTitle, 'aiBody': this.responseBody, 'aiFollowUp': this.responseFollowUp
     });
   }
 
-  goHome() {
-    router.replaceUrl({
-      url: 'pages/Index'
-    });
-  }
+  goHome(): void { router.replaceUrl({ url: 'pages/Index' }); }
+  writeAgain(): void { router.replaceUrl({ url: 'pages/TestPage' }); }
 
   build() {
     Column() {
-      Column() {
-        Text('💕 你的恋爱性格')
-          .fontSize(22)
-          .fontWeight(FontWeight.Bold)
-          .fontColor('#FFFFFF')
+      Row() {
+        Button() { Text('←').fontSize(22).fontColor('#FFFFFF') }
+        .width(44).height(44).backgroundColor(Color.Transparent).onClick(() => this.goHome())
+        Text('💌 暖心回信').fontSize(18).fontWeight(FontWeight.Bold).fontColor('#FFFFFF')
+          .layoutWeight(1).textAlign(TextAlign.Center)
+        Blank().width(44)
       }
-      .width('100%')
-      .height(60)
-      .linearGradient({
-        direction: GradientDirection.Bottom,
-        colors: [['#E91E63', 0], ['#C2185B', 1]]
-      })
-      .justifyContent(FlexAlign.Center)
+      .width('100%').height(52).backgroundColor('#C8896ECC').backdropBlur(12)
 
-      if (this.result) {
-        Scroll() {
+      Scroll() {
+        Column() {
+          // 信笺
           Column() {
-            Column() {
-              Text('你的恋爱性格是')
-                .fontSize(14)
-                .fontColor('#E91E63')
-                .margin({ bottom: 8 })
+            Row() { Text('—·—·—').fontSize(10).fontColor('#EDE6DE') }
+            .width('100%').justifyContent(FlexAlign.Center).margin({ bottom: 22 })
 
-              Text(this.resultType)
-                .fontSize(52)
-                .fontWeight(FontWeight.Bold)
-                .fontColor('#E91E63')
-                .margin({ bottom: 10 })
-
-              Text(this.result.description)
-                .fontSize(16)
-                .fontColor('#666666')
-                .textAlign(TextAlign.Center)
-                .width('85%')
-                .lineHeight(24)
+            if (this.categoryEmoji) {
+              Row() {
+                Text('收件人：').fontSize(12).fontColor('#BFB4A8')
+                Text(this.categoryEmoji).fontSize(16).margin({ left: 2, right: 4 })
+                Text(this.categoryName).fontSize(13).fontColor('#C8896E').fontWeight(FontWeight.Medium)
+              }
+              .width('100%').margin({ bottom: 20 })
             }
-            .width('100%')
-            .margin({ top: 25, bottom: 20 })
-            .padding(20)
-            .backgroundColor('#FFF0F5')
-            .borderRadius(15)
 
-            Column() {
-              Row() {
-                Text('✨')
-                  .fontSize(20)
-                  .margin({ right: 8 })
-                Text('结果分享卡片')
-                  .fontSize(18)
-                  .fontWeight(FontWeight.Bold)
-                  .fontColor('#FFFFFF')
-              }
-              .margin({ bottom: 14 })
+            Text(this.responseTitle)
+              .fontSize(26).fontWeight(FontWeight.Bold).fontColor('#C8896E')
+              .textAlign(TextAlign.Center).width('100%').margin({ bottom: 22 })
 
-              Text(this.resultType)
-                .fontSize(44)
-                .fontWeight(FontWeight.Bold)
-                .fontColor('#FFFFFF')
-                .margin({ bottom: 8 })
+            Text(this.responseBody)
+              .fontSize(15).fontColor('#4A3F35').lineHeight(30).textAlign(TextAlign.Start).width('100%').margin({ bottom: 28 })
 
-              Text(this.result.description)
-                .fontSize(15)
-                .fontColor('#FFF5F7')
-                .textAlign(TextAlign.Center)
-                .lineHeight(22)
-                .width('92%')
-                .margin({ bottom: 14 })
+            Row() { Text('·   ·   ·').fontSize(14).fontColor('#D8CFC4') }
+            .width('100%').justifyContent(FlexAlign.Center).margin({ bottom: 18 })
 
-              Row() {
-                Column() {
-                  Text('性格亮点')
-                    .fontSize(12)
-                    .fontColor('#FFDCE6')
-                    .margin({ bottom: 6 })
-                  Text(this.result.strengths[0])
-                    .fontSize(14)
-                    .fontWeight(FontWeight.Medium)
-                    .fontColor('#FFFFFF')
-                }
-                .width('45%')
-
-                Column() {
-                  Text('最佳匹配')
-                    .fontSize(12)
-                    .fontColor('#FFDCE6')
-                    .margin({ bottom: 6 })
-                  Text(loveAdviceData[this.resultType].bestMatch[0])
-                    .fontSize(14)
-                    .fontWeight(FontWeight.Medium)
-                    .fontColor('#FFFFFF')
-                }
-                .width('45%')
-              }
-              .width('100%')
-              .justifyContent(FlexAlign.SpaceBetween)
-              .margin({ bottom: 14 })
-
-              Text('截图这张卡片，发给朋友一起看你的恋爱风格。')
-                .fontSize(12)
-                .fontColor('#FFE7EE')
-            }
-            .width('100%')
-            .padding(20)
-            .backgroundColor('#E91E63')
-            .borderRadius(18)
-            .margin({ bottom: 20 })
-            .shadow({ radius: 10, color: '#F7B4C7', offsetX: 0, offsetY: 5 })
-
-            Column() {
-              Row() {
-                Text('💘')
-                  .fontSize(18)
-                  .margin({ right: 8 })
-                Text('恋爱性格特点')
-                  .fontSize(18)
-                  .fontWeight(FontWeight.Bold)
-                  .fontColor('#333333')
-              }
-              .margin({ bottom: 12 })
-
-              ForEach(this.result.characteristics, (item: string) => {
-                Row() {
-                  Text('•')
-                    .fontSize(16)
-                    .fontColor('#E91E63')
-                    .margin({ right: 8 })
-                  Text(item)
-                    .fontSize(15)
-                    .fontColor('#333333')
-                }
-                .width('100%')
-                .margin({ bottom: 8 })
-                .alignItems(VerticalAlign.Top)
-              })
-            }
-            .width('90%')
-            .padding(18)
-            .backgroundColor('#FFFFFF')
-            .borderRadius(12)
-            .margin({ bottom: 15 })
-            .shadow({ radius: 5, color: '#FFE0E6', offsetX: 0, offsetY: 2 })
-
-            Column() {
-              Row() {
-                Text('💚')
-                  .fontSize(18)
-                  .margin({ right: 8 })
-                Text('恋爱中的优势')
-                  .fontSize(18)
-                  .fontWeight(FontWeight.Bold)
-                  .fontColor('#333333')
-              }
-              .margin({ bottom: 12 })
-
-              Flex({ wrap: FlexWrap.Wrap }) {
-                ForEach(this.result.strengths, (item: string) => {
-                  Text(item)
-                    .fontSize(14)
-                    .fontColor('#FFFFFF')
-                    .backgroundColor('#4CAF50')
-                    .borderRadius(15)
-                    .padding({ left: 12, right: 12, top: 6, bottom: 6 })
-                    .margin({ right: 8, bottom: 8 })
-                })
-              }
-              .width('100%')
-            }
-            .width('90%')
-            .padding(18)
-            .backgroundColor('#FFFFFF')
-            .borderRadius(12)
-            .margin({ bottom: 15 })
-            .shadow({ radius: 5, color: '#FFE0E6', offsetX: 0, offsetY: 2 })
-
-            Column() {
-              Row() {
-                Text('💛')
-                  .fontSize(18)
-                  .margin({ right: 8 })
-                Text('需要注意的方面')
-                  .fontSize(18)
-                  .fontWeight(FontWeight.Bold)
-                  .fontColor('#333333')
-              }
-              .margin({ bottom: 12 })
-
-              Flex({ wrap: FlexWrap.Wrap }) {
-                ForEach(this.result.weaknesses, (item: string) => {
-                  Text(item)
-                    .fontSize(14)
-                    .fontColor('#FFFFFF')
-                    .backgroundColor('#FF9800')
-                    .borderRadius(15)
-                    .padding({ left: 12, right: 12, top: 6, bottom: 6 })
-                    .margin({ right: 8, bottom: 8 })
-                })
-              }
-              .width('100%')
-            }
-            .width('90%')
-            .padding(18)
-            .backgroundColor('#FFFFFF')
-            .borderRadius(12)
-            .margin({ bottom: 15 })
-            .shadow({ radius: 5, color: '#FFE0E6', offsetX: 0, offsetY: 2 })
-
-            Column() {
-              Row() {
-                Text('💑')
-                  .fontSize(18)
-                  .margin({ right: 8 })
-                Text('你的最佳伴侣')
-                  .fontSize(18)
-                  .fontWeight(FontWeight.Bold)
-                  .fontColor('#333333')
-              }
-              .margin({ bottom: 12 })
-
-              Row() {
-                ForEach(loveAdviceData[this.resultType].bestMatch, (item: string) => {
-                  Column() {
-                    Text(item)
-                      .fontSize(20)
-                      .fontWeight(FontWeight.Bold)
-                      .fontColor('#FFFFFF')
-                  }
-                  .width(65)
-                  .height(65)
-                  .backgroundColor('#E91E63')
-                  .borderRadius(32)
-                  .justifyContent(FlexAlign.Center)
-                  .margin({ right: 15 })
-                })
-
-                Column() {
-                  Text('...')
-                    .fontSize(20)
-                    .fontColor('#E91E63')
-                }
-                .width(65)
-                .height(65)
-                .backgroundColor('#FFF0F5')
-                .borderRadius(32)
-                .justifyContent(FlexAlign.Center)
-              }
-              .width('100%')
-            }
-            .width('90%')
-            .padding(18)
-            .backgroundColor('#FFFFFF')
-            .borderRadius(12)
-            .margin({ bottom: 20 })
-            .shadow({ radius: 5, color: '#FFE0E6', offsetX: 0, offsetY: 2 })
-
-            Button() {
-              Row() {
-                Text('💕')
-                  .fontSize(22)
-                  .margin({ right: 8 })
-                Text('查看完整恋爱建议')
-                  .fontSize(18)
-                  .fontWeight(FontWeight.Bold)
-              }
-            }
-            .width('90%')
-            .height(60)
-            .backgroundColor('#E91E63')
-            .fontColor('#FFFFFF')
-            .borderRadius(30)
-            .shadow({ radius: 12, color: '#E91E63', offsetX: 0, offsetY: 6 })
-            .margin({ bottom: 20 })
-            .onClick(() => {
-              router.pushUrl({
-                url: 'pages/LoveAdvicePage',
-                params: {
-                  resultType: this.resultType
-                }
-              });
-            })
-
-            Button('去玩趣味玩法')
-              .width('90%')
-              .height(52)
-              .backgroundColor('#FFF0F5')
-              .fontColor('#E91E63')
-              .border({ width: 1, color: '#F6B3C6', radius: 26 })
-              .margin({ bottom: 20 })
-              .onClick(() => {
-                router.pushUrl({
-                  url: 'pages/FunPage',
-                  params: {
-                    resultType: this.resultType
-                  }
-                });
-              })
+            Text(this.responseFollowUp)
+              .fontSize(14).fontColor('#BFB4A8').fontStyle(FontStyle.Italic)
+              .textAlign(TextAlign.Center).width('100%').margin({ bottom: 20 })
 
             Row() {
-              Button('重新测试')
-                .width('40%')
-                .height(50)
-                .backgroundColor('#FFFFFF')
-                .fontColor('#E91E63')
-                .border({ width: 2, color: '#E91E63', radius: 25 })
-                .onClick(() => this.restartTest())
-
-              Button('返回首页')
-                .width('40%')
-                .height(50)
-                .backgroundColor('#FFFFFF')
-                .fontColor('#E91E63')
-                .border({ width: 2, color: '#E91E63', radius: 25 })
-                .onClick(() => this.goHome())
+              Column() {
+                Text('心事述说馆').fontSize(13).fontColor('#C8A89A')
+                Text(new Date().toISOString().split('T')[0]).fontSize(10).fontColor('#D8CFC4').margin({ top: 2 })
+              }
+              .alignItems(HorizontalAlign.End)
             }
-            .width('90%')
-            .justifyContent(FlexAlign.SpaceBetween)
-            .margin({ bottom: 30 })
+            .width('100%').justifyContent(FlexAlign.End)
+            Row() { Text('—·—·—').fontSize(10).fontColor('#EDE6DE') }
+            .width('100%').justifyContent(FlexAlign.Center).margin({ top: 16 })
           }
-          .width('100%')
-          .alignItems(HorizontalAlign.Center)
-        }
-        .width('100%')
-        .layoutWeight(1)
-        .scrollBar(BarState.Off)
-      } else {
-        Column() {
-          Text('未找到测试结果')
-            .fontSize(18)
-            .fontColor('#999999')
-            .margin({ top: 100 })
+          .width('88%').padding(28).backgroundColor('#FFFFFFDD').borderRadius(20)
+          .border({ width: 1, color: '#EDE6DE55' })
+          .margin({ top: 20, bottom: 14 }).backdropBlur(12)
 
-          Button('返回首页')
-            .width('60%')
-            .height(50)
-            .backgroundColor('#E91E63')
-            .fontColor('#FFFFFF')
-            .borderRadius(25)
-            .margin({ top: 30 })
-            .onClick(() => this.goHome())
+          if (this.userContent) {
+            Column() {
+              Row() {
+                Text('📝 你写给树洞的话').fontSize(13).fontColor('#8B7D72').layoutWeight(1)
+                Text(this.showRecap ? '收起 ▲' : '展开 ▼').fontSize(12).fontColor('#BFB4A8')
+              }
+              .width('100%').padding(16)
+              .backgroundColor(this.showRecap ? '#FDF8F4' : '#FFFFFFDD').borderRadius(14)
+              .border({ width: 1, color: '#EDE6DE55' })
+              .onClick(() => { this.showRecap = !this.showRecap; })
+              if (this.showRecap) {
+                Column() {
+                  Divider().width('100%').height(1).color('#EDE6DE').margin({ bottom: 14 })
+                  Text(this.userContent).fontSize(14).fontColor('#6B5C4F').lineHeight(24).width('100%')
+                }
+                .width('100%').padding({ left: 16, right: 16, bottom: 16 })
+                .backgroundColor('#FDF8F4').borderRadius({ bottomLeft: 14, bottomRight: 14 })
+              }
+            }
+            .width('88%').margin({ bottom: 16 })
+          }
+
+          Button() {
+            Row() { Text('🧪').fontSize(17).margin({ right: 8 }); Text('测测你的压力水平').fontSize(15).fontWeight(FontWeight.Medium) }
+          }
+          .width('88%').height(52).backgroundColor('#C8896E').fontColor('#FFFFFF').borderRadius(26)
+          .margin({ bottom: 10 }).onClick(() => router.pushUrl({ url: 'pages/LoveAdvicePage' }))
+
+          Button() {
+            Row() { Text('🎁').fontSize(17).margin({ right: 8 }); Text('去治愈角放松一下').fontSize(15).fontWeight(FontWeight.Medium) }
+          }
+          .width('88%').height(52).backgroundColor('#FFFFFFDD').fontColor('#C8896E')
+          .border({ width: 1.5, color: '#C8896E', radius: 26 }).margin({ bottom: 10 })
+          .backdropBlur(12).onClick(() => router.pushUrl({ url: 'pages/FunPage' }))
+
+          Button('再写一封心事')
+            .width('88%').height(48).backgroundColor('#FFFFFFDD').fontColor('#C8896E')
+            .border({ width: 1.5, color: '#C8896E', radius: 24 }).margin({ bottom: 10 })
+            .backdropBlur(12).onClick(() => this.writeAgain())
+          Text('返回首页').fontSize(14).fontColor('#BFB4A8').onClick(() => this.goHome()).margin({ bottom: 28 })
         }
-        .width('100%')
-        .layoutWeight(1)
-        .justifyContent(FlexAlign.Center)
-        .alignItems(HorizontalAlign.Center)
+        .width('100%').alignItems(HorizontalAlign.Center)
       }
+      .width('100%').layoutWeight(1).scrollBar(BarState.Off)
     }
-    .width('100%')
-    .height('100%')
-    .backgroundColor('#FFF5F7')
+    .width('100%').height('100%')
+    .backgroundImage($r('app.media.bg_warm'))
+    .backgroundImageSize(ImageSize.Cover)
   }
 }

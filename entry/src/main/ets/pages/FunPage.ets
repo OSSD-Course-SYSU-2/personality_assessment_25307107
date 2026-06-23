@@ -1,389 +1,158 @@
+/**
+ * 心事述说馆 - 治愈角
+ * 背景：图片 — 替换 bg_heal.png
+ */
 import router from '@ohos.router';
-import { funFortunes, funMoodTips, funQuizItems, funTaskItems, getFunMatchHint } from '../data/FunPlayData';
-
-interface FunPageParams {
-  resultType?: string;
-}
+import { freeFlowState } from '../common/FreeFlowState';
+import { healingQuotes, dailyTasks, moodFortunes } from '../data/HealingContent';
+import { dbHelper } from '../data/DatabaseHelper';
 
 @Entry
 @Component
-struct FunPage {
-  @State resultType: string = '';
+struct HealingPage {
   @State taskIndex: number = 0;
-  @State quizIndex: number = 0;
-  @State taskEmoji: string = '';
-  @State taskTitle: string = '';
-  @State taskSubtitle: string = '';
-  @State taskDetail: string = '';
-  @State moodTip: string = '';
-  @State quizQuestion: string = '';
-  @State quizOptionA: string = '';
-  @State quizOptionB: string = '';
-  @State quizResult: string = '';
-  @State quizResultDetail: string = '';
-  @State matchHint: string = '';
+  @State quoteIndex: number = 0;
   @State fortuneIndex: number = 0;
-  @State fortuneText: string = '';
+  @State isTaskDone: boolean = false;
 
   aboutToAppear() {
-    const params = router.getParams() as FunPageParams;
-    if (params && params.resultType) {
-      this.resultType = params.resultType;
-    }
-
-    const date = new Date();
-    this.taskIndex = (date.getFullYear() * 372 + date.getMonth() * 31 + date.getDate()) % funTaskItems.length;
-    this.quizIndex = date.getDate() % funQuizItems.length;
-    this.fortuneIndex = (date.getFullYear() + date.getMonth() + date.getDate()) % funFortunes.length;
-    this.loadTaskData();
-    this.loadQuizData();
-    this.moodTip = funMoodTips[this.taskIndex % funMoodTips.length];
-    this.matchHint = getFunMatchHint(this.resultType);
-    this.fortuneText = funFortunes[this.fortuneIndex];
-    this.quizResult = '';
-    this.quizResultDetail = '';
+    const rp = freeFlowState.hasRestoreData() ? freeFlowState.getRestoredParams() : null;
+    const d = new Date();
+    this.quoteIndex = rp?.['quoteIndex'] !== undefined ? rp['quoteIndex'] as number
+      : (d.getDate() + d.getMonth()) % healingQuotes.length;
+    this.taskIndex = rp?.['taskIndex'] !== undefined ? rp['taskIndex'] as number
+      : (d.getFullYear() * 372 + d.getMonth() * 31 + d.getDate()) % dailyTasks.length;
+    this.fortuneIndex = rp?.['fortuneIndex'] !== undefined ? rp['fortuneIndex'] as number
+      : (d.getFullYear() + d.getMonth() + d.getDate()) % moodFortunes.length;
+    this.syncFS(); this.checkTask();
   }
-
-  loadTaskData() {
-    const task = funTaskItems[this.taskIndex];
-    this.taskEmoji = task.emoji;
-    this.taskTitle = task.title;
-    this.taskSubtitle = task.subtitle;
-    this.taskDetail = task.detail;
-  }
-
-  loadQuizData() {
-    const quiz = funQuizItems[this.quizIndex];
-    this.quizQuestion = quiz.question;
-    this.quizOptionA = quiz.optionA;
-    this.quizOptionB = quiz.optionB;
-  }
-
-  nextTask() {
-    this.taskIndex = (this.taskIndex + 1) % funTaskItems.length;
-    this.loadTaskData();
-    this.moodTip = funMoodTips[this.taskIndex % funMoodTips.length];
-  }
-
-  nextQuiz() {
-    this.quizIndex = (this.quizIndex + 1) % funQuizItems.length;
-    this.loadQuizData();
-    this.quizResult = '';
-    this.quizResultDetail = '';
-  }
-
-  nextFortune() {
-    this.fortuneIndex = (this.fortuneIndex + 1) % funFortunes.length;
-    this.fortuneText = funFortunes[this.fortuneIndex];
-  }
-
-  selectQuiz(option: 'A' | 'B') {
-    const currentQuiz = funQuizItems[this.quizIndex];
-    this.quizResult = option === 'A' ? '你选了 A' : '你选了 B';
-    this.quizResultDetail = option === 'A' ? currentQuiz.answerA : currentQuiz.answerB;
-  }
-
-  goHome() {
-    router.replaceUrl({
-      url: 'pages/Index'
+  async checkTask(): Promise<void> { this.isTaskDone = await dbHelper.isTaskCompleted(this.taskIndex + 1); }
+  syncFS(): void {
+    freeFlowState.updateState('pages/FunPage', {
+      'taskIndex': this.taskIndex, 'quoteIndex': this.quoteIndex,
+      'fortuneIndex': this.fortuneIndex, 'isTaskDone': this.isTaskDone
     });
   }
+  nextQuote(): void { this.quoteIndex = (this.quoteIndex + 1) % healingQuotes.length; this.syncFS(); }
+  nextTask(): void { this.taskIndex = (this.taskIndex + 1) % dailyTasks.length; this.checkTask(); this.syncFS(); }
+  async toggleDone(): Promise<void> { this.isTaskDone = !this.isTaskDone; if (this.isTaskDone) { await dbHelper.completeTask(this.taskIndex + 1); }
+    this.syncFS(); }
+  nextFortune(): void { this.fortuneIndex = (this.fortuneIndex + 1) % moodFortunes.length; this.syncFS(); }
+  goHome(): void { router.replaceUrl({ url: 'pages/Index' }); }
 
   build() {
     Column() {
       Row() {
-        Button() {
-          Text('←')
-            .fontSize(24)
-            .fontColor('#FFFFFF')
-        }
-        .width(50)
-        .height(50)
-        .backgroundColor(Color.Transparent)
-        .onClick(() => this.goHome())
-
-        Text('趣味玩法')
-          .fontSize(24)
-          .fontWeight(FontWeight.Bold)
-          .fontColor('#FFFFFF')
-          .layoutWeight(1)
-          .textAlign(TextAlign.Center)
-
-        Blank().width(50)
+        Button() { Text('←').fontSize(22).fontColor('#FFFFFF') }
+        .width(44).height(44).backgroundColor(Color.Transparent).onClick(() => this.goHome())
+        Text('今日治愈').fontSize(18).fontWeight(FontWeight.Bold).fontColor('#FFFFFF')
+          .layoutWeight(1).textAlign(TextAlign.Center)
+        Blank().width(44)
       }
-      .width('100%')
-      .height(60)
-      .linearGradient({
-        direction: GradientDirection.Bottom,
-        colors: [['#E91E63', 0], ['#C2185B', 1]]
-      })
+      .width('100%').height(52).backgroundColor('#C8896ECC').backdropBlur(12)
 
       Scroll() {
         Column() {
+          // ── 每日一言 ──
           Column() {
-            Text('把测试玩得更轻松一点')
-              .fontSize(22)
-              .fontWeight(FontWeight.Bold)
-              .fontColor('#E91E63')
-              .margin({ bottom: 10 })
-
-            Text('这里有每日小任务、随机彩蛋题和基于你类型的轻提示。')
-              .fontSize(15)
-              .fontColor('#666666')
-              .textAlign(TextAlign.Center)
-              .lineHeight(24)
+            Text('每日一言').fontSize(12).fontColor('#BFB4A8')
+              .padding({ left: 14, right: 14, top: 4, bottom: 4 })
+              .backgroundColor('#F5F0EAB3').borderRadius(10).margin({ bottom: 18 })
+            Text(healingQuotes[this.quoteIndex].emoji).fontSize(40).margin({ bottom: 14 })
+            Text(healingQuotes[this.quoteIndex].content)
+              .fontSize(20).fontColor('#3D3028').lineHeight(34)
+              .fontWeight(FontWeight.Medium).textAlign(TextAlign.Center).margin({ bottom: 12 })
+            Row() { Text('—').fontSize(12).fontColor('#D8CFC4') }
+            .width('100%').justifyContent(FlexAlign.Center).margin({ bottom: 10 })
+            Text(healingQuotes[this.quoteIndex].secondaryText).fontSize(13).fontColor('#BFB4A8')
+            Button('换一句').fontSize(13).height(36).padding({ left: 22, right: 22 })
+              .backgroundColor('#FFFFFF').fontColor('#C8896E')
+              .border({ width: 1.5, color: '#C8896E', radius: 18 }).margin({ top: 18 })
+              .onClick(() => this.nextQuote())
           }
-          .width('90%')
-          .padding(20)
-          .backgroundColor('#FFF0F5')
-          .borderRadius(18)
-          .margin({ top: 20, bottom: 15 })
+          .width('88%').padding({ top: 24, bottom: 28, left: 24, right: 24 })
+          .backgroundColor('#FFFFFFDD').borderRadius(20)
+          .border({ width: 1, color: '#EDE6DE55' }).margin({ top: 20, bottom: 14 })
+          .backdropBlur(12).alignItems(HorizontalAlign.Center)
 
+          // ── 每日小任务 ──
           Column() {
+            Text('今日小任务').fontSize(12).fontColor('#BFB4A8')
+              .padding({ left: 14, right: 14, top: 4, bottom: 4 })
+              .backgroundColor('#F5F0EAB3').borderRadius(10).margin({ bottom: 18 })
             Row() {
-              Text(this.taskEmoji)
-                .fontSize(24)
-                .margin({ right: 10 })
+              Text(dailyTasks[this.taskIndex].emoji).fontSize(36).margin({ right: 14 })
               Column() {
-                Text(this.taskTitle)
-                  .fontSize(18)
-                  .fontWeight(FontWeight.Bold)
-                  .fontColor('#333333')
-                Text(this.taskSubtitle)
-                  .fontSize(14)
-                  .fontColor('#E91E63')
-                  .margin({ top: 4 })
+                Text(dailyTasks[this.taskIndex].title).fontSize(16).fontWeight(FontWeight.Bold).fontColor('#3D3028')
+                Text(dailyTasks[this.taskIndex].secondaryText).fontSize(12).fontColor('#BFB4A8').margin({ top: 2 })
               }
-              .alignItems(HorizontalAlign.Start)
-              .layoutWeight(1)
+              .alignItems(HorizontalAlign.Start).layoutWeight(1)
+            }
+            .width('100%').margin({ bottom: 18 })
+            Column() {
+              Text(dailyTasks[this.taskIndex].content)
+                .fontSize(18).fontColor('#3D3028').lineHeight(28)
+                .fontWeight(FontWeight.Medium).textAlign(TextAlign.Center)
+            }
+            .width('100%').padding(20).backgroundColor(this.isTaskDone ? '#F2F5EF' : '#FDF8F4')
+            .borderRadius(14).margin({ bottom: 20 })
+            Row() {
+              Button() {
+                Row() {
+                  Text(this.isTaskDone ? '✓' : '○').fontSize(18).margin({ right: 5 })
+                  Text(this.isTaskDone ? '已完成' : '标记完成').fontSize(14)
+                }
+              }
+              .height(42).padding({ left: 20, right: 20 })
+              .backgroundColor(this.isTaskDone ? '#9BAF8A' : '#FFFFFF')
+              .fontColor(this.isTaskDone ? '#FFFFFF' : '#9BAF8A')
+              .border({ width: 1.5, color: '#9BAF8A', radius: 21 })
+              .onClick(() => this.toggleDone())
+              Blank().layoutWeight(1)
+              Button('换一个').height(42).padding({ left: 20, right: 20 })
+                .backgroundColor('#FFFFFF').fontColor('#C8896E')
+                .border({ width: 1.5, color: '#C8896E', radius: 21 })
+                .onClick(() => this.nextTask())
             }
             .width('100%')
-            .margin({ bottom: 12 })
-
-            Text(this.taskDetail)
-              .fontSize(15)
-              .fontColor('#555555')
-              .lineHeight(24)
-
-            Text(this.moodTip)
-              .fontSize(13)
-              .fontColor('#999999')
-              .margin({ top: 14 })
-
-            Button('换一个任务')
-              .width('100%')
-              .height(48)
-              .margin({ top: 16 })
-              .backgroundColor('#E91E63')
-              .fontColor('#FFFFFF')
-              .borderRadius(24)
-              .onClick(() => this.nextTask())
           }
-          .width('90%')
-          .padding(20)
-          .backgroundColor('#FFFFFF')
-          .borderRadius(16)
-          .margin({ bottom: 15 })
-          .shadow({ radius: 8, color: '#FAD3DE', offsetX: 0, offsetY: 4 })
+          .width('88%').padding({ top: 24, bottom: 26, left: 24, right: 24 })
+          .backgroundColor('#FFFFFFDD').borderRadius(20)
+          .border({ width: 1, color: '#EDE6DE55' }).margin({ bottom: 14 })
+          .backdropBlur(12)
 
+          // ── 心情签 ──
           Column() {
-            Row() {
-              Text('🧧')
-                .fontSize(22)
-                .margin({ right: 8 })
-              Text('恋爱幸运签')
-                .fontSize(18)
-                .fontWeight(FontWeight.Bold)
-                .fontColor('#333333')
-            }
-            .margin({ bottom: 12 })
-
-            Text(this.fortuneText)
-              .fontSize(15)
-              .fontColor('#555555')
-              .lineHeight(24)
-
-            Button('再抽一签')
-              .width('100%')
-              .height(48)
-              .margin({ top: 16 })
-              .backgroundColor('#FFF0F5')
-              .fontColor('#E91E63')
-              .border({ width: 1, color: '#F6B3C6', radius: 24 })
+            Text('🏮').fontSize(20).margin({ bottom: 6 })
+            Text('心情签').fontSize(12).fontColor('#FFFFFF').opacity(0.7).margin({ bottom: 24 })
+            Text(moodFortunes[this.fortuneIndex].emoji).fontSize(48).margin({ bottom: 16 })
+            Text(moodFortunes[this.fortuneIndex].keyword)
+              .fontSize(28).fontWeight(FontWeight.Bold).fontColor('#FFFFFF')
+              .letterSpacing(6).margin({ bottom: 18 })
+            Text(moodFortunes[this.fortuneIndex].fortune)
+              .fontSize(14).fontColor('#F5EBE4').lineHeight(26)
+              .textAlign(TextAlign.Center).width('90%')
+            Button('再抽一签').fontSize(13).fontWeight(FontWeight.Medium)
+              .height(40).padding({ left: 26, right: 26 })
+              .backgroundColor('#FFFFFFDD').fontColor('#C8896E').borderRadius(20)
+              .margin({ top: 22 }).backdropBlur(12)
               .onClick(() => this.nextFortune())
           }
-          .width('90%')
-          .padding(20)
-          .backgroundColor('#FFFFFF')
-          .borderRadius(16)
-          .margin({ bottom: 15 })
-          .shadow({ radius: 8, color: '#FAD3DE', offsetX: 0, offsetY: 4 })
+          .width('88%').padding({ top: 22, bottom: 32, left: 20, right: 20 })
+          .linearGradient({ direction: GradientDirection.Top, colors: [['#C8896E', 0], ['#D4A373', 1]] })
+          .borderRadius(22).margin({ bottom: 14 })
+          .shadow({ radius: 16, color: '#C8896E44', offsetX: 0, offsetY: 8 })
+          .alignItems(HorizontalAlign.Center)
 
-          Column() {
-            Row() {
-              Text('🎲')
-                .fontSize(22)
-                .margin({ right: 8 })
-              Text('三秒恋爱彩蛋题')
-                .fontSize(18)
-                .fontWeight(FontWeight.Bold)
-                .fontColor('#333333')
-            }
-            .margin({ bottom: 14 })
-
-            Text(this.quizQuestion)
-              .fontSize(16)
-              .fontColor('#555555')
-              .lineHeight(24)
-              .margin({ bottom: 16 })
-
-            Button() {
-              Row() {
-                Text('A')
-                  .fontSize(15)
-                  .fontWeight(FontWeight.Bold)
-                  .fontColor('#FFFFFF')
-                  .backgroundColor('#E91E63')
-                  .borderRadius(12)
-                  .width(24)
-                  .height(24)
-                  .textAlign(TextAlign.Center)
-                  .margin({ right: 10 })
-                Text(this.quizOptionA)
-                  .fontSize(15)
-                  .fontColor('#333333')
-                  .textAlign(TextAlign.Start)
-                  .layoutWeight(1)
-              }
-              .width('100%')
-              .alignItems(VerticalAlign.Center)
-              .padding({ left: 12, right: 12, top: 14, bottom: 14 })
-            }
-            .width('100%')
-            .backgroundColor('#FFF5F7')
-            .borderRadius(14)
-            .border({ width: 1, color: '#FFE0E6' })
-            .margin({ bottom: 12 })
-            .onClick(() => this.selectQuiz('A'))
-
-            Button() {
-              Row() {
-                Text('B')
-                  .fontSize(15)
-                  .fontWeight(FontWeight.Bold)
-                  .fontColor('#FFFFFF')
-                  .backgroundColor('#E91E63')
-                  .borderRadius(12)
-                  .width(24)
-                  .height(24)
-                  .textAlign(TextAlign.Center)
-                  .margin({ right: 10 })
-                Text(this.quizOptionB)
-                  .fontSize(15)
-                  .fontColor('#333333')
-                  .textAlign(TextAlign.Start)
-                  .layoutWeight(1)
-              }
-              .width('100%')
-              .alignItems(VerticalAlign.Center)
-              .padding({ left: 12, right: 12, top: 14, bottom: 14 })
-            }
-            .width('100%')
-            .backgroundColor('#FFF5F7')
-            .borderRadius(14)
-            .border({ width: 1, color: '#FFE0E6' })
-            .onClick(() => this.selectQuiz('B'))
-
-            Button('换一道彩蛋题')
-              .width('100%')
-              .height(46)
-              .backgroundColor('#FFFFFF')
-              .fontColor('#E91E63')
-              .border({ width: 1, color: '#F6B3C6', radius: 23 })
-              .margin({ top: 14 })
-              .onClick(() => this.nextQuiz())
-
-            if (this.quizResult) {
-              Column() {
-                Text(this.quizResult)
-                  .fontSize(15)
-                  .fontWeight(FontWeight.Bold)
-                  .fontColor('#E91E63')
-                  .margin({ bottom: 8 })
-                Text(this.quizResultDetail)
-                  .fontSize(14)
-                  .fontColor('#666666')
-                  .lineHeight(22)
-              }
-              .width('100%')
-              .padding(14)
-              .backgroundColor('#FFF0F5')
-              .borderRadius(14)
-              .margin({ top: 14 })
-            }
-          }
-          .width('90%')
-          .padding(20)
-          .backgroundColor('#FFFFFF')
-          .borderRadius(16)
-          .margin({ bottom: 15 })
-          .shadow({ radius: 8, color: '#FAD3DE', offsetX: 0, offsetY: 4 })
-
-          Column() {
-            Row() {
-              Text('💘')
-                .fontSize(22)
-                .margin({ right: 8 })
-              Text('你的轻提示')
-                .fontSize(18)
-                .fontWeight(FontWeight.Bold)
-                .fontColor('#333333')
-            }
-            .margin({ bottom: 12 })
-
-            Text('这是根据你的 MBTI 类型给出的今天可直接照做的互动建议，适合聊天、约会和推进关系时参考。')
-              .fontSize(13)
-              .fontColor('#999999')
-              .lineHeight(20)
-              .margin({ bottom: 12 })
-
-            Text(this.matchHint)
-              .fontSize(15)
-              .fontColor('#555555')
-              .lineHeight(24)
-
-            if (this.resultType) {
-              Text(`当前类型：${this.resultType}`)
-                .fontSize(13)
-                .fontColor('#E91E63')
-                .margin({ top: 12 })
-            }
-          }
-          .width('90%')
-          .padding(20)
-          .backgroundColor('#FFFFFF')
-          .borderRadius(16)
-          .margin({ bottom: 20 })
-          .shadow({ radius: 8, color: '#FAD3DE', offsetX: 0, offsetY: 4 })
-
-          Button('返回首页')
-            .width('90%')
-            .height(54)
-            .backgroundColor('#FFFFFF')
-            .fontColor('#E91E63')
-            .border({ width: 2, color: '#E91E63', radius: 27 })
-            .margin({ bottom: 30 })
-            .onClick(() => this.goHome())
+          Text('返回首页').fontSize(14).fontColor('#BFB4A8')
+            .onClick(() => this.goHome()).margin({ bottom: 28 })
         }
-        .width('100%')
-        .alignItems(HorizontalAlign.Center)
+        .width('100%').alignItems(HorizontalAlign.Center)
       }
-      .width('100%')
-      .layoutWeight(1)
-      .scrollBar(BarState.Off)
+      .width('100%').layoutWeight(1).scrollBar(BarState.Off)
     }
-    .width('100%')
-    .height('100%')
-    .backgroundColor('#FFF5F7')
+    .width('100%').height('100%')
+    .backgroundImage($r('app.media.bg_warm'))
+    .backgroundImageSize(ImageSize.Cover)
   }
 }
