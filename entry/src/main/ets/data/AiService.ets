@@ -6,13 +6,14 @@
 import { http } from '@kit.NetworkKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { feelingCards } from './FeelingCards';
+import { API_CONFIG } from './ApiConfig';
 
 const DOMAIN = 0x0000;
 
-// ── 硅基流动 API（国内直连，免费 2000万 token）──
-const AI_API_URL: string = 'https://api.siliconflow.cn/v1/chat/completions';
-const AI_API_KEY: string = 'sk-udobiytdsdircqxvqmuvhulqctwrtfiwegxmkrngztjhnvft';
-const AI_MODEL: string = 'deepseek-ai/DeepSeek-V3';
+// Key 从 ApiConfig.ets 读取（该文件在 .gitignore 中，不提交到 Git）
+const AI_API_URL: string = API_CONFIG.url;
+const AI_API_KEY: string = API_CONFIG.key;
+const AI_MODEL: string = API_CONFIG.model;
 
 /** AI 回信结果 */
 export interface AiResponse {
